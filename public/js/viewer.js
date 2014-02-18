@@ -125,6 +125,7 @@ var controller = function(master, id, type) { // drop it off somewhere random
 renderers['pen'] = function() {
   var isDrawing = false;
   var currentPath = null;
+  var randomWidth = Util.randInt(15,25);
   return {
     color: new Color(0,0,0),
     startPress: function(position) {
@@ -132,7 +133,7 @@ renderers['pen'] = function() {
       currentPath = new Path({
         segments: [position],
         strokeColor: this.color,
-        strokeWidth: 20,
+        strokeWidth: randomWidth,
         strokeCap: 'round'
       });
 
@@ -157,6 +158,53 @@ renderers['pen'] = function() {
   };
 };
 
+renderers['shape'] = function() {
+  var isDrawing = false;
+  var currentPath = null;
+  var radiusGrowth = Util.randInt(20,40)/50.0;
+  var maxGrowth = Util.randInt(100,400);
+  var radius;
+  return {
+    color: new Color(0,0,0),
+    startPress: function(position) {
+      isDrawing = true;
+      radius = ARTIST_RADIUS;
+      currentPath = new Path.Circle({
+        center: position,
+        radius: radius,
+        fillColor: this.color
+      });
+
+    },
+    setColor: function(color) {
+      this.color = color;
+      if (isDrawing) {
+        currentPath.fillColor = color;
+      }
+    },
+    endPress: function(position) {
+      if (!isDrawing) return;
+      isDrawing = false;
+    },
+    reset: function(position) {
+    },
+    move: function(position) {
+      if (!isDrawing) return;
+      radius += radiusGrowth;
+      currentPath.remove();
+      currentPath = new Path.Circle({
+        center: position,
+        radius: radius,
+        fillColor: this.color
+      });
+      if (radius > maxGrowth) {
+        this.endPress();
+      }
+    }
+  };
+};
+
+
 window.globals.controllerhandler = {
   add: function(master, id, type) {
     controllers[id] = controller(master, id, type);
@@ -170,7 +218,7 @@ function onFrame(event) {
   var dt = (new Date()).getTime() - lastTime;
   dt /= 1000;
   if (stars.length < 3) {
-    if (Util.randInt(1, (stars.length + 1) * 500) == 2) {
+    if (Util.randInt(1, (stars.length + 1) * 200) == 2) {
       stars.push(star());
     }
   }

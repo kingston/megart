@@ -1,6 +1,10 @@
 class Controller
   constructor: (@id, @socket) ->
-    @paper = window.globals.controllerhandler.add(@, @id, 'pen')
+    if Math.random() > 0.7
+      role = 'shape'
+    else
+      role = 'pen'
+    @paper = window.globals.controllerhandler.add(@, @id, role)
     @setRandomColor()
 
   setRandomColor: () ->
