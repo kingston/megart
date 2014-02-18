@@ -20,7 +20,9 @@ class ViewerApplication
     @_registerSocketEvents(@socket)
 
     # start connection
-    @_registerViewer()
+    @socket.on('connect', =>
+      @_registerViewer()
+    )
 
     $("#thecanvas").width($(window).width())
                    .height($(window).height())

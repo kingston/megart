@@ -15,14 +15,16 @@ class ControllerApplication
     @_registerSocketEvents(@socket)
 
     # start connection
-    @socket.emit('register', (success) =>
-      if (!success)
-        @_setOverlayStatus("Unable to join server...")
-      else
-        if (success == 'active')
-          @_startController()
+    @socket.on('connect', =>
+      @socket.emit('register', (success) =>
+        if (!success)
+          @_setOverlayStatus("Unable to join server...")
         else
-          @_setOverlayStatus("Waiting for canvas...")
+          if (success == 'active')
+            @_startController()
+          else
+            @_setOverlayStatus("Waiting for canvas...")
+      )
     )
 
     # set theme color to gray
@@ -84,6 +86,7 @@ class ControllerApplication
 
   _setOverlayStatus: (status) ->
     $("#status").text(status)
+    @isActive = false
 
   # canvas logic
   # ============

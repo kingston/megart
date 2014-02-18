@@ -41,11 +41,13 @@ function registerViewerEvents(socket) {
   });
 
   socket.on('disconnect', function() {
-    if (currentViewer === socket) {
-      currentViewer = null;
-      controller.emit('no viewer');
-      viewer.emit('no viewer');
-    }
+    socket.get('active', function(err, active) {
+      if (active) {
+        currentViewer = null;
+        controller.emit('no viewer');
+        viewer.emit('no viewer');
+      }
+    });
   });
 }
 
