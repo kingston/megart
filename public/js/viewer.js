@@ -143,7 +143,6 @@ renderers['pen'] = function() {
     endPress: function(position) {
       if (!isDrawing) return;
       isDrawing = false;
-      currentPath.simplify(10);
     },
     reset: function(position) {
       if (!isDrawing) return;
@@ -153,6 +152,7 @@ renderers['pen'] = function() {
     move: function(position) {
       if (!isDrawing) return;
       currentPath.add(position);
+      currentPath.smooth();
     }
   };
 };
@@ -170,7 +170,7 @@ function onFrame(event) {
   var dt = (new Date()).getTime() - lastTime;
   dt /= 1000;
   if (stars.length < 3) {
-    if (Util.randInt(1, (stars.length + 1) * 300) == 2) {
+    if (Util.randInt(1, (stars.length + 1) * 500) == 2) {
       stars.push(star());
     }
   }
