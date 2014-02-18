@@ -8,14 +8,16 @@ var controllers = {};
 var renderers = {};
 var controller = function(id, type) {
   // drop it off somewhere random
-  var x = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
-  var y = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
+  var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
+  var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
   var path = new Path.Circle({
-    center: new Point(x, y),
+    center: new Point(startX, startY),
     radius: ARTIST_RADIUS
   });
 
   var renderer = renderers[type]();
+
+  var startTime = Util.now();
 
   return {
     id: id,
@@ -36,6 +38,11 @@ var controller = function(id, type) {
       renderer.setColor(color);
     },
     update: function(dt) {
+      if (Util.now() - startTime < 500) {
+        var percentage = 1 - (Util.now() - startTime) / 500.0
+        path.position.y = startY - 20 + percentage * 20 * Math.abs(Math.sin((Util.now() - startTime) / 50.0));
+        return;
+      }
       if (!this.hasOwnProperty('angle')) return;
       var dx = MAX_SPEED * this.magnitude * Math.sin(this.angle);
       var dy = - MAX_SPEED * this.magnitude * Math.cos(this.angle);
@@ -43,14 +50,18 @@ var controller = function(id, type) {
       path.position.y += dy * dt;
       // boundary detection
       if (path.position.x < -ARTIST_RADIUS) {
-        path.position.x = -ARTIST_RADIUS;
-      } else if (path.position.x > view.size.width + ARTIST_RADIUS) {
         path.position.x = view.size.width + ARTIST_RADIUS;
+        renderer.reset(path.position);
+      } else if (path.position.x > view.size.width + ARTIST_RADIUS) {
+        path.position.x = -ARTIST_RADIUS;
+        renderer.reset(path.position);
       }
       if (path.position.y < -ARTIST_RADIUS) {
-        path.position.y = -ARTIST_RADIUS;
-      } else if (path.position.y > view.size.height + ARTIST_RADIUS) {
         path.position.y = view.size.height + ARTIST_RADIUS;
+        renderer.reset(path.position);
+      } else if (path.position.y > view.size.height + ARTIST_RADIUS) {
+        path.position.y = -ARTIST_RADIUS;
+        renderer.reset(path.position);
       }
       renderer.move(path.position);
     },
@@ -81,8 +92,14 @@ renderers['pen'] = function() {
       this.color = color;
     },
     endPress: function(position) {
+      if (!isDrawing) return;
       isDrawing = false;
       currentPath.simplify(10);
+    },
+    reset: function(position) {
+      if (!isDrawing) return;
+      this.endPress(position);
+      this.startPress(position);
     },
     move: function(position) {
       if (!isDrawing) return;
