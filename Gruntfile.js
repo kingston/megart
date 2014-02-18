@@ -4,7 +4,9 @@ module.exports = function(grunt) {
 		sass: {
 			dist: {
 				files: {
-					'public/stylesheets/public.css' : 'app/stylesheets/public.scss'
+					'public/stylesheets/public.css' : 'app/stylesheets/public.scss',
+					'public/stylesheets/desktop.css' : 'app/stylesheets/desktop.scss',
+					'public/stylesheets/mobile.css' : 'app/stylesheets/mobile.scss'
 				}
 			}
 		},
@@ -14,7 +16,8 @@ module.exports = function(grunt) {
           join: true
         },
         files: {
-          'public/js/desktop.js': ['desktop/**/*.coffee']
+          'public/js/desktop.js': ['desktop/**/*.coffee'],
+          'public/js/mobile.js': ['mobile/**/*.coffee']
         }
       }
     },
@@ -24,7 +27,7 @@ module.exports = function(grunt) {
 				tasks: ['sass']
 			},
       coffee: {
-        files: 'desktop/**/*.coffee',
+        files: '**/*.coffee',
         tasks: ['coffee']
       }
 		}
