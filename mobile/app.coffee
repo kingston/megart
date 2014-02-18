@@ -4,6 +4,8 @@ $(->
 
 class ControllerApplication
   socket: null
+  isActive: false
+  updatesPaused: false
 
   # overlay logic
   # =============
@@ -24,9 +26,33 @@ class ControllerApplication
     )
 
     # set theme color to gray
-    @_setThemeColor(Color().rgb(255,0,0))
+    @_setThemeColor(Color().rgb(255,255,255))
+
+    # set handlers
+    button = $("#thebutton")
+    button.on('touchstart', (e) =>
+      @_startPress()
+      e.stopPropagation()
+      e.preventDefault()
+    )
+    button.mousedown((e) =>
+      @_startPress()
+    )
+    button.on('touchend', (e) =>
+      @_endPress()
+      e.stopPropagation()
+      e.preventDefault()
+    )
+    button.mouseup((e) =>
+      @_endPress()
+    )
+
+    # attach gyro handlers
+    gyro.startTracking (o) =>
+      @_updateServer(o.alpha, o.beta)
 
   _showOverlay: (status) ->
+    @isActive = false
     $("#overlay").fadeIn()
     @_setOverlayStatus(status)
 
@@ -41,6 +67,10 @@ class ControllerApplication
       @_showOverlay("Lost connection...")
     )
 
+    socket.on('color change', (r, g, b) =>
+      @_setThemeColor(Color().rgb(r,g,b))
+    )
+
   _setOverlayStatus: (status) ->
     $("#status").text(status)
 
@@ -49,6 +79,7 @@ class ControllerApplication
 
   _startController: ->
     $("#overlay").fadeOut()
+    @isActive = true
 
   _setThemeColor: (color) ->
     backgroundColor = new Color(color.rgb())
@@ -66,3 +97,43 @@ class ControllerApplication
     $("#thebutton").css('background-color', topColor.rgbString());
     console.log(gradientSpecifier)
 
+  _startPress: ->
+    if @isActive
+      @socket.emit('start press')
+
+  _endPress: ->
+    if @isActive
+      @socket.emit('end press')
+
+  _updateServer: (alpha, beta) ->
+    return if !@isActive
+    return if @updatesPaused
+
+    if (!alpha)
+      # we're on a desktop or such like
+      angle = 0
+      magnitude = 1
+    else
+      #normalize alpha
+      maxBeta = 30.0
+      maxAlpha = 30.0
+      if (alpha > 180)
+        alpha = alpha - 360
+      
+      beta = beta / maxBeta
+      alpha = - alpha / maxAlpha
+
+      angle = Math.atan2(alpha, beta)
+      if (angle < 0)
+        angle += 2 * Math.PI
+
+      magnitude = Math.sqrt(alpha * alpha + beta * beta)
+      if (magnitude > 1)
+        magnitude = 1
+      else if (magnitude < 0.1)
+        magnitude = 0
+
+    @updatesPaused = true
+    @socket.emit('update', angle, magnitude, =>
+      @updatesPaused = false
+    )

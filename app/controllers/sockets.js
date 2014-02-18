@@ -36,6 +36,10 @@ function registerViewerEvents(socket) {
     });
   });
 
+  socket.on('color change', function(id, r, g, b) {
+    controllers[id].emit('color change', r, g, b);
+  });
+
   socket.on('disconnect', function() {
     if (currentViewer === socket) {
       currentViewer = null;
@@ -60,6 +64,43 @@ function registerControllerEvents(socket) {
         fn('active');
       } else {
         fn('inactive');
+      }
+    });
+  });
+
+  socket.on('start press', function() {
+    socket.get('id', function(err, id) {
+      if (err) {
+        console.log("Error getting id: " + err.toString());
+      } else {
+        if (currentViewer) {
+          currentViewer.emit('start press', id);
+        }
+      }
+    });
+  });
+
+  socket.on('end press', function() {
+    socket.get('id', function(err, id) {
+      if (err) {
+        console.log("Error getting id: " + err.toString());
+      } else {
+        if (currentViewer) {
+          currentViewer.emit('end press', id);
+        }
+      }
+    });
+  });
+
+  socket.on('update', function(angle, magnitude, fn) {
+    socket.get('id', function(err, id) {
+      if (err) {
+        console.log("Error getting id: " + err.toString());
+      } else {
+        if (currentViewer) {
+          currentViewer.emit('update', id, angle, magnitude);
+          fn();
+        }
       }
     });
   });

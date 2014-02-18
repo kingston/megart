@@ -49,6 +49,18 @@ class ViewerApplication
         console.log(id + " left")
         delete @controllers[id]
     )
+    socket.on('start press', (id) =>
+      if (id in @controllers)
+        @controllers[id].beginPress()
+    )
+    socket.on('end press', (id) =>
+      if (id in @controllers)
+        @controllers[id].endPress()
+    )
+    socket.on('update', (id, angle, magnitude) =>
+      if (id in @controllers)
+        @controllers[id].update(angle, magnitude)
+    )
 
   _setOverlayStatus: (status) ->
     $("#status").text(status)
@@ -64,4 +76,4 @@ class ViewerApplication
 
   _addNewController: (id) ->
     console.log(id + " joined")
-    @controllers[id] = {}
+    @controllers[id] = new Controller(id, @socket)
