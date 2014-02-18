@@ -2,7 +2,7 @@ class Controller
   constructor: (@id, @socket) ->
     hue = Util.randInt(0, 360)
     saturation = Util.randInt(50, 100)
-    value = Util.randInt(0, 100)
+    value = Util.randInt(80, 100)
     @paper = window.globals.controllerhandler.add(@id, 'pen')
     @setColor(Color().hsv(hue, saturation, value))
 

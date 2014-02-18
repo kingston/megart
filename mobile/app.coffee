@@ -118,33 +118,31 @@ class ControllerApplication
 
   _updateServer: (alpha, beta) ->
     return if !@isActive
-    return if @updatesPaused
 
-    if (!alpha)
-      # we're on a desktop or such like
-      angle = @angle
-      magnitude = 1
-    else
-      #normalize alpha
-      maxBeta = 30.0
-      maxAlpha = 30.0
-      if (alpha > 180)
-        alpha = alpha - 360
-      
-      beta = beta / maxBeta
-      alpha = - alpha / maxAlpha
+    if (@lastUpdate == undefined || (new Date()).getTime() - @lastUpdate > 100)
+      @lastUpdate = (new Date()).getTime()
 
-      angle = Math.atan2(alpha, beta)
-      if (angle < 0)
-        angle += 2 * Math.PI
-
-      magnitude = Math.sqrt(alpha * alpha + beta * beta)
-      if (magnitude > 1)
+      if (!alpha)
+        # we're on a desktop or such like
+        angle = @angle
         magnitude = 1
-      else if (magnitude < 0.1)
-        magnitude = 0
+      else
+        #normalize alpha
+        maxBeta = 30.0
+        maxAlpha = 30.0
+        if (alpha > 180)
+          alpha = alpha - 360
+        
+        beta = beta / maxBeta
+        alpha = - alpha / maxAlpha
 
-    @updatesPaused = true
-    @socket.emit('update', angle, magnitude, =>
-      @updatesPaused = false
-    )
+        angle = Math.atan2(alpha, beta)
+        if (angle < 0)
+          angle += 2 * Math.PI
+
+        magnitude = Math.sqrt(alpha * alpha + beta * beta)
+        if (magnitude > 1)
+          magnitude = 1
+        else if (magnitude < 0.1)
+          magnitude = 0
+      @socket.emit('update', angle, magnitude)

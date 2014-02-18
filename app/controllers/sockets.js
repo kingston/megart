@@ -98,8 +98,7 @@ function registerControllerEvents(socket) {
         console.log("Error getting id: " + err.toString());
       } else {
         if (currentViewer) {
-          currentViewer.emit('update', id, angle, magnitude);
-          fn();
+          currentViewer.volatile.emit('update', id, angle, magnitude);
         }
       }
     });

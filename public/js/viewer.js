@@ -30,7 +30,7 @@ var controller = function(id, type) {
       renderer.endPress(path.position);
     },
     setColor: function(color) {
-      color = new Color(color.red(), color.green(), color.blue());
+      color = new Color(color.red() / 256.0, color.green() / 256.0, color.blue() / 256.0);
       this.color = color;
       path.fillColor = color;
       renderer.setColor(color);
