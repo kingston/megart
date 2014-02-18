@@ -1,7 +1,7 @@
 // the PaperScript for the viewer...
 
 var ARTIST_RADIUS = 20;
-var MAX_SPEED = 100; // pixels per second
+var MAX_SPEED = 200; // pixels per second
 
 // handle controllers
 var controllers = {};
