@@ -32,6 +32,8 @@ class ViewerApplication
       if (!success)
         @_setOverlayStatus("Waiting for canvas to become available...")
       else
+        for own id, controller of @controllers
+          controller.remove()
         @controllers = {}
         if (controllers.length > 0)
           @_startViewer(controllers)

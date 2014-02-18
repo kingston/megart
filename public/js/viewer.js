@@ -3,11 +3,39 @@
 var ARTIST_RADIUS = 20;
 var MAX_SPEED = 200; // pixels per second
 
+// handle stars
+var stars = [];
+
+var star = function() {
+  var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
+  var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
+  var raster = new Raster('star');
+
+  raster.position = new Point(startX, startY);
+  raster.scale(0.1);
+
+  var startTime = Util.now();
+
+  return {
+    x: startX,
+    y: startY,
+    update: function(dt) {
+      raster.rotate(1);
+      if (Util.now() - startTime > 20000) {
+        this.remove();
+      }
+    },
+    remove: function() {
+      raster.remove();
+      stars.splice(stars.indexOf(this), 1);
+    }
+  }
+};
+
 // handle controllers
 var controllers = {};
 var renderers = {};
-var controller = function(id, type) {
-  // drop it off somewhere random
+var controller = function(master, id, type) { // drop it off somewhere random
   var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
   var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
   var path = new Path.Circle({
@@ -18,6 +46,8 @@ var controller = function(id, type) {
   var renderer = renderers[type]();
 
   var startTime = Util.now();
+  var randomTime = 0;
+  var lastColorChangeTime = 0;
 
   return {
     id: id,
@@ -64,6 +94,25 @@ var controller = function(id, type) {
         renderer.reset(path.position);
       }
       renderer.move(path.position);
+
+      // hit tests
+      for (var i = 0; i < stars.length; i++) {
+        var star = stars[i];
+        var dx = star.x - path.position.x;
+        var dy = star.y - path.position.y;
+        if (Math.sqrt(dx * dx + dy * dy) < ARTIST_RADIUS * 2 + 10) {
+          star.remove();
+          randomTime = Util.now();
+        }
+      }
+
+      if (Util.now() - randomTime < 1000) {
+        if (Util.now() - lastColorChangeTime > 100) {
+          master.setRandomColor();
+          lastColorChangeTime = Util.now();
+          renderer.reset(path.position);
+        }
+      }
     },
     remove: function() {
       path.remove();
@@ -109,8 +158,8 @@ renderers['pen'] = function() {
 };
 
 window.globals.controllerhandler = {
-  add: function(id, type) {
-    controllers[id] = controller(id, type);
+  add: function(master, id, type) {
+    controllers[id] = controller(master, id, type);
     return controllers[id];
   }
 };
@@ -120,6 +169,14 @@ var lastTime = 0;
 function onFrame(event) {
   var dt = (new Date()).getTime() - lastTime;
   dt /= 1000;
+  if (stars.length < 3) {
+    if (Util.randInt(1, (stars.length + 1) * 300) == 2) {
+      stars.push(star());
+    }
+  }
+  for (var i = 0; i < stars.length; i++) {
+    stars[i].update(dt);
+  }
   for (var id in controllers) {
     if (controllers.hasOwnProperty(id)) {
       controllers[id].update(dt);
