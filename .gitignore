@@ -17,3 +17,6 @@ build
 node_modules
 
 .sass-cache
+
+public/js
+public/stylesheets
