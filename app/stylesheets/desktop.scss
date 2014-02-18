@@ -1,1 +1,27 @@
-@import 'normalize'
+@import 'normalize';
+
+body {
+  font-family: 'Lato', sans-serif;
+}
+
+#overlay {
+  background-color: rgba(0,0,0,0.9);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  h1 {
+    margin-top: 200px;
+    font-size: 6em;
+    text-shadow: 1px 1px #333;
+  }
+  h2 {
+    font-size: 3em;
+    font-weight: normal;
+  }
+  h1, h2 {
+    text-align: center;
+    color: #fff;
+  }
+}
