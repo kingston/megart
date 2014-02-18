@@ -23,6 +23,9 @@ class ControllerApplication
           @_setOverlayStatus("Waiting for canvas...")
     )
 
+    # set theme color to gray
+    @_setThemeColor(Color().rgb(255,0,0))
+
   _showOverlay: (status) ->
     $("#overlay").fadeIn()
     @_setOverlayStatus(status)
@@ -46,3 +49,20 @@ class ControllerApplication
 
   _startController: ->
     $("#overlay").fadeOut()
+
+  _setThemeColor: (color) ->
+    backgroundColor = new Color(color.rgb())
+    backgroundColor.lighten(0.9)
+    $("body").css('background-color', backgroundColor.rgbString())
+
+    topColor = new Color(color.rgb())
+    bottomColor = new Color(color.rgb())
+    bottomColor.darken(0.2)
+    gradientSpecifier = "top, " + topColor.hexString() + ", " + bottomColor.hexString();
+    $("#thebutton").css('background-image', '-webkit-linear-gradient(' + gradientSpecifier + ')');
+    #$("#thebutton").css('background-image', '-moz-linear-gradient(' + gradientSpecifier + ')');
+    #$("#thebutton").css('background-image', '-o-linear-gradient(' + gradientSpecifier + ')');
+    #$("#thebutton").css('background-image', 'linear-gradient(' + gradientSpecifier + ')');
+    $("#thebutton").css('background-color', topColor.rgbString());
+    console.log(gradientSpecifier)
+
