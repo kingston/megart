@@ -1,6 +1,11 @@
 $(->
   (new ViewerApplication()).run()
+
 )
+
+# set up globals object for paperscript communication
+window.globals = {
+}
 
 class ViewerApplication
   socket: null
@@ -16,6 +21,9 @@ class ViewerApplication
 
     # start connection
     @_registerViewer()
+
+    $("#thecanvas").width($(window).width())
+                   .height($(window).height())
 
   _registerViewer: () ->
     @socket.emit('register', (success, controllers) =>
@@ -45,20 +53,21 @@ class ViewerApplication
         @_addNewController(id)
     )
     socket.on('left', (id) =>
-      if (id in @controllers)
+      if (id of @controllers)
         console.log(id + " left")
+        @controllers[id].remove()
         delete @controllers[id]
     )
     socket.on('start press', (id) =>
-      if (id in @controllers)
+      if (id of @controllers)
         @controllers[id].beginPress()
     )
     socket.on('end press', (id) =>
-      if (id in @controllers)
+      if (id of @controllers)
         @controllers[id].endPress()
     )
     socket.on('update', (id, angle, magnitude) =>
-      if (id in @controllers)
+      if (id of @controllers)
         @controllers[id].update(angle, magnitude)
     )
 

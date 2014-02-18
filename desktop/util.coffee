@@ -1,2 +1,2 @@
-class Util
+class window.Util
   @randInt: (min, max) -> Math.floor((Math.random()*max)+min);

@@ -111,7 +111,7 @@ class ControllerApplication
 
     if (!alpha)
       # we're on a desktop or such like
-      angle = 0
+      angle = Math.PI / 2.0 + Math.PI
       magnitude = 1
     else
       #normalize alpha
