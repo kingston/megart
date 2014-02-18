@@ -47,6 +47,17 @@ class ControllerApplication
       @_endPress()
     )
 
+    $(window).keydown((e) =>
+      if (e.keyCode == 37)
+        @angle = Math.PI / 2 + Math.PI
+      else if (e.keyCode == 38)
+        @angle = 0
+      else if (e.keyCode == 39)
+        @angle = Math.PI / 2
+      else if (e.keyCode == 40)
+        @angle = Math.PI
+    )
+
     # attach gyro handlers
     gyro.startTracking (o) =>
       @_updateServer(o.alpha, o.beta)
@@ -111,7 +122,7 @@ class ControllerApplication
 
     if (!alpha)
       # we're on a desktop or such like
-      angle = Math.PI / 2.0 + Math.PI
+      angle = @angle
       magnitude = 1
     else
       #normalize alpha

@@ -3,7 +3,7 @@ class Controller
     hue = Util.randInt(0, 360)
     saturation = Util.randInt(25, 100)
     value = Util.randInt(75, 100)
-    @paper = window.globals.controllerhandler.add(@id)
+    @paper = window.globals.controllerhandler.add(@id, 'pen')
     @setColor(Color().hsv(hue, saturation, value))
 
   beginPress: ->
