@@ -93,7 +93,7 @@ var controller = function(master, id, type) { // drop it off somewhere random
         path.position.y = -ARTIST_RADIUS;
         renderer.reset(path.position);
       }
-      renderer.move(path.position);
+      renderer.move(path.position, this.angle);
 
       // hit tests
       for (var i = 0; i < stars.length; i++) {
@@ -204,6 +204,60 @@ renderers['shape'] = function() {
   };
 };
 
+renderers['nyan'] = function() {
+  var isDrawing = false;
+  var currentPath = null;
+  var colors = ['red', 'orange', 'yellow', 'lime', 'blue', 'purple'];
+  var paths = null;
+  return {
+    color: new Color(0,0,0),
+    startPress: function(position) {
+      isDrawing = true;
+      paths = [];
+      for (var i = 0; i < colors.length; i++) {
+        paths.push(new Path({
+          fillColor: colors[i]
+        }));
+      }
+    },
+    setColor: function(color) {
+      this.color = color;
+    },
+    endPress: function(position) {
+      if (!isDrawing) return;
+      isDrawing = false;
+    },
+    reset: function(position) {
+      if (!isDrawing) return;
+      this.endPress(position);
+      this.startPress(position);
+    },
+    move: function(position, angle) {
+      if (!isDrawing) return;
+      
+      var middle = paths.length / 2;
+      angle += Math.PI / 2;
+      var rotated = new Point(Math.sin(angle), Math.cos(angle));
+      for (var j = 0; j < paths.length; j++) {
+        var path = paths[j];
+        var unitLength = 7;
+        var length = (j - middle) * unitLength;
+        console.log(rotated);
+        var top = position + rotated.normalize(length)
+        var bottom = position + rotated.normalize(length + unitLength);
+        path.add(top);
+        path.insert(0, bottom);
+        //if (path.segments.length > 200) {
+          //var index = Math.round(path.segments.length / 2);
+          //path.segments[index].remove();
+          //path.segments[index - 1].remove();
+        //}
+        path.smooth();
+      }
+    }
+  };
+};
+
 
 window.globals.controllerhandler = {
   add: function(master, id, type) {
@@ -218,7 +272,7 @@ function onFrame(event) {
   var dt = (new Date()).getTime() - lastTime;
   dt /= 1000;
   if (stars.length < 3) {
-    if (Util.randInt(1, (stars.length + 1) * 200) == 2) {
+    if (Util.randInt(1, (stars.length + 1) * 400) == 2) {
       stars.push(star());
     }
   }
