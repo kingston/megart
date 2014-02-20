@@ -65,7 +65,7 @@ var nyan = (function() {
       if (state == 0) {
         // hidden
         if (Util.now() - startTime > NYAN_START) {
-          if (Util.randInt(0, NYAN_RARITY) == 0) {
+          if (Util.randInt(0, NYAN_RARITY) == 10) {
             var x = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
             var y = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
             this.setPosition(x, y);
