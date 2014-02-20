@@ -130,10 +130,14 @@ var controller = function(master, id, type) { // drop it off somewhere random
 
   var isNyaned = false;
 
+  var targetAngle = 0;
+
   return {
     id: id,
+    angle: -1,
     setVelocity: function(angle, magnitude) {
-      this.angle = angle;
+      if (this.angle == -1) this.angle = angle;
+      targetAngle = angle;
       this.magnitude = magnitude;
     },
     startPress: function() {
@@ -154,6 +158,19 @@ var controller = function(master, id, type) { // drop it off somewhere random
       isNyaned = false;
     },
     update: function(dt) {
+      // update angle
+
+      // complex angle stuff (mini-code hack)
+      var c = this.angle;
+      var t = targetAngle;
+      var l = Math.PI * 2;
+
+      var offset = ((l/2) - c);
+      var newT = (offset + t) % l;
+      var newC = newT * 0.1 + (l/2) * 0.9;
+      
+      this.angle = (newC - offset + l) % l;
+
       if (Util.now() - startTime < 500) {
         var percentage = 1 - (Util.now() - startTime) / 500.0
         path.position.y = startY - 20 + percentage * 20 * Math.abs(Math.sin((Util.now() - startTime) / 50.0));
@@ -344,11 +361,12 @@ renderers['nyan'] = function() {
         var bottom = position + rotated.normalize(length + unitLength);
         path.add(top);
         path.insert(0, bottom);
-        //if (path.segments.length > 200) {
+        if (path.segments.length > 200) {
+          this.reset();
           //var index = Math.round(path.segments.length / 2);
           //path.segments[index].remove();
           //path.segments[index - 1].remove();
-        //}
+        }
         path.smooth();
       }
     }
