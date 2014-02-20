@@ -36,6 +36,79 @@ var star = function() {
   }
 };
 
+var nyan = (function() {
+  var NYAN_START = 1000; // time when first nyan is possible
+  var NYAN_RARITY = 1000;
+
+  var nyanElem = $("#nyan");
+
+  var startTime = Util.now();
+  var nx, ny;
+
+  var hide = function() {
+    nyanElem.fadeOut();
+    state = 0;
+  };
+
+  var state = 0; // 0-hidden, 1-available, 2-taken
+
+  var showTime;
+  var nyanedController;
+
+  var width = nyanElem.width(),
+      height = nyanElem.height();
+
+  var NYAN_RADIUS = width / 2.0; // time when first nyan is possible
+
+  return {
+    update: function(dt) {
+      if (state == 0) {
+        // hidden
+        if (Util.now() - startTime > NYAN_START) {
+          if (Util.randInt(0, NYAN_RARITY) == 0) {
+            var x = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
+            var y = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
+            this.setPosition(x, y);
+            state = 1;
+            showTime = Util.now();
+            nyanElem.fadeIn();
+          }
+        }
+      } else if (state === 1) {
+        if (Util.now() - showTime > 10000) {
+          hide();
+        }
+      } else if (state === 2) {
+        if (Util.now() - showTime > 10000) {
+          nyanedController.stopNyan();
+          hide();
+        }
+      }
+    },
+    setPosition: function(x, y) {
+      nx = x;
+      ny = y;
+
+      nyanElem.css('left', nx - width / 2.0);
+      nyanElem.css('top', ny - height / 2.0);
+    },
+    hit: function(controller) {
+      state = 2;
+      showTime = Util.now();
+      nyanedController = controller;
+    },
+    isHit: function(x, y) {
+      if (state != 1) return false;
+      var dx = x - nx;
+      var dy = y - ny;
+      if (Math.sqrt(dx * dx + dy * dy) < ARTIST_RADIUS + NYAN_RADIUS) {
+        return true;
+      }
+      return false;
+    }
+  }
+})();
+
 // handle controllers
 var controllers = {};
 var renderers = {};
@@ -55,6 +128,8 @@ var controller = function(master, id, type) { // drop it off somewhere random
   var randomTime = 0;
   var lastColorChangeTime = 0;
 
+  var isNyaned = false;
+
   return {
     id: id,
     setVelocity: function(angle, magnitude) {
@@ -72,6 +147,11 @@ var controller = function(master, id, type) { // drop it off somewhere random
       this.color = color;
       path.fillColor = color;
       renderer.setColor(color);
+    },
+    stopNyan: function() {
+      renderer = renderers[type]();
+      renderer.setColor(this.color);
+      isNyaned = false;
     },
     update: function(dt) {
       if (Util.now() - startTime < 500) {
@@ -112,11 +192,23 @@ var controller = function(master, id, type) { // drop it off somewhere random
         }
       }
 
-      if (Util.now() - randomTime < 1000) {
+      if (nyan.isHit(path.position.x, path.position.y)) {
+        renderer = renderers['nyan']();
+        isNyaned = true;
+        nyan.hit(this);
+      }
+
+      if (isNyaned) {
+        nyan.setPosition(path.position.x, path.position.y);
+      }
+
+      if (Util.now() - randomTime < 1000 || isNyaned) {
         if (Util.now() - lastColorChangeTime > 100) {
           master.setRandomColor();
           lastColorChangeTime = Util.now();
-          renderer.reset(path.position);
+          if (!isNyaned) {
+            renderer.reset(path.position);
+          }
         }
       }
     },
@@ -248,7 +340,6 @@ renderers['nyan'] = function() {
         var path = paths[j];
         var unitLength = 7;
         var length = (j - middle) * unitLength;
-        console.log(rotated);
         var top = position + rotated.normalize(length)
         var bottom = position + rotated.normalize(length + unitLength);
         path.add(top);
@@ -263,7 +354,6 @@ renderers['nyan'] = function() {
     }
   };
 };
-
 
 window.globals.controllerhandler = {
   add: function(master, id, type) {
@@ -290,5 +380,6 @@ function onFrame(event) {
       controllers[id].update(dt);
     }
   }
+  nyan.update(dt);
   lastTime = (new Date()).getTime();
 }
