@@ -10,6 +10,15 @@ var stars = [];
 var backLayer = project.activeLayer;
 var controllerLayer = new Layer();
 
+var nyanMusic = new Howl({
+  urls: ['http://dl.dropbox.com/u/31703/nyan.mp3'],
+  loop: true
+});
+var runningMusic = new Howl({
+  urls: ['https://dl.dropboxusercontent.com/u/4863004/running.mp3'],
+  loop: true
+});
+
 var star = function() {
   var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
   var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
@@ -81,6 +90,11 @@ var nyan = (function() {
       } else if (state === 2) {
         if (Util.now() - showTime > 10000) {
           nyanedController.stopNyan();
+          nyanMusic.fade(1.0, 0.0, 1000, function() {
+            nyanMusic.pause();
+            runningMusic.play();
+            runningMusic.fade(0.0, 1.0, 1000);
+          });
           hide();
         }
       }
@@ -96,6 +110,11 @@ var nyan = (function() {
       state = 2;
       showTime = Util.now();
       nyanedController = controller;
+      runningMusic.fade(1.0, 0.0, 1000, function() {
+        runningMusic.pause();
+        nyanMusic.play();
+        nyanMusic.fade(0.0, 1.0, 1000);
+      });
     },
     isHit: function(x, y) {
       if (state != 1) return false;
@@ -371,6 +390,10 @@ renderers['nyan'] = function() {
       }
     }
   };
+};
+
+window.globals.initializePaper = function() {
+  runningMusic.play();
 };
 
 window.globals.controllerhandler = {

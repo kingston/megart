@@ -1,6 +1,5 @@
 $(->
   (new ViewerApplication()).run()
-
 )
 
 # set up globals object for paperscript communication
@@ -86,6 +85,7 @@ class ViewerApplication
     for id in controllers
       @_addNewController(id)
     $("#overlay").fadeOut()
+    window.globals.initializePaper()
 
   _addNewController: (id) ->
     console.log(id + " joined")
