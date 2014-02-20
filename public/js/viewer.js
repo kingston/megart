@@ -6,6 +6,10 @@ var MAX_SPEED = 200; // pixels per second
 // handle stars
 var stars = [];
 
+// layer handling
+var backLayer = project.activeLayer;
+var controllerLayer = new Layer();
+
 var star = function() {
   var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
   var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
@@ -38,10 +42,12 @@ var renderers = {};
 var controller = function(master, id, type) { // drop it off somewhere random
   var startX = Util.randInt(ARTIST_RADIUS, view.size.width - ARTIST_RADIUS);
   var startY = Util.randInt(ARTIST_RADIUS, view.size.height - ARTIST_RADIUS);
+  controllerLayer.activate();
   var path = new Path.Circle({
     center: new Point(startX, startY),
     radius: ARTIST_RADIUS
   });
+  backLayer.activate();
 
   var renderer = renderers[type]();
 
