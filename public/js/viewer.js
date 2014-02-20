@@ -46,8 +46,8 @@ var star = function() {
 };
 
 var nyan = (function() {
-  var NYAN_START = 1000; // time when first nyan is possible
-  var NYAN_RARITY = 1000;
+  var NYAN_START = 40000; // time when first nyan is possible
+  var NYAN_RARITY = 2000;
 
   var nyanElem = $("#nyan");
 
@@ -259,7 +259,7 @@ var controller = function(master, id, type) { // drop it off somewhere random
 renderers['pen'] = function() {
   var isDrawing = false;
   var currentPath = null;
-  var randomWidth = Util.randInt(15,25);
+  var randomWidth = Util.randInt(10,25);
   return {
     color: new Color(0,0,0),
     startPress: function(position) {
@@ -295,8 +295,8 @@ renderers['pen'] = function() {
 renderers['shape'] = function() {
   var isDrawing = false;
   var currentPath = null;
-  var radiusGrowth = Util.randInt(20,40)/50.0;
-  var maxGrowth = Util.randInt(100,400);
+  var radiusGrowth = Util.randInt(10,20)/50.0;
+  var maxGrowth = Util.randInt(50,150);
   var radius;
   return {
     color: new Color(0,0,0),
