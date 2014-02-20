@@ -166,10 +166,10 @@ var controller = function(master, id, type) { // drop it off somewhere random
       var l = Math.PI * 2;
 
       var offset = ((l/2) - c);
-      var newT = (offset + t) % l;
+      var newT = (offset + t + l) % l;
       var newC = newT * 0.1 + (l/2) * 0.9;
       
-      this.angle = (newC - offset + l) % l;
+      this.angle = (newC - offset + 2 * l) % l;
 
       if (Util.now() - startTime < 500) {
         var percentage = 1 - (Util.now() - startTime) / 500.0
