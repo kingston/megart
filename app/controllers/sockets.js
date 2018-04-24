@@ -23,6 +23,10 @@ function makeid()
 
 function registerViewerEvents(socket) {
   socket.on('register', function(fn) {
+    //if (socket.handshake.headers['x-forwarded-for'] != "") {
+      //fn(false);
+      //return;
+    //}
     if (currentViewer) {
       fn(false);
       return;

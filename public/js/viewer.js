@@ -1,6 +1,6 @@
 // the PaperScript for the viewer...
 
-var ARTIST_RADIUS = 20;
+var ARTIST_RADIUS = 15;
 var MAX_SPEED = 200; // pixels per second
 
 // handle stars
@@ -46,8 +46,8 @@ var star = function() {
 };
 
 var nyan = (function() {
-  var NYAN_START = 40000; // time when first nyan is possible
-  var NYAN_RARITY = 2000;
+  var NYAN_START = 30000; // time when first nyan is possible
+  var NYAN_RARITY = 1500;
 
   var nyanElem = $("#nyan");
 
@@ -84,11 +84,11 @@ var nyan = (function() {
           }
         }
       } else if (state === 1) {
-        if (Util.now() - showTime > 10000) {
+        if (Util.now() - showTime > 5000) {
           hide();
         }
       } else if (state === 2) {
-        if (Util.now() - showTime > 10000) {
+        if (Util.now() - showTime > 22000) {
           nyanedController.stopNyan();
           nyanMusic.fade(1.0, 0.0, 1000, function() {
             nyanMusic.pause();
@@ -259,7 +259,7 @@ var controller = function(master, id, type) { // drop it off somewhere random
 renderers['pen'] = function() {
   var isDrawing = false;
   var currentPath = null;
-  var randomWidth = Util.randInt(10,25);
+  var randomWidth = Util.randInt(10,15);
   return {
     color: new Color(0,0,0),
     startPress: function(position) {
@@ -296,7 +296,7 @@ renderers['shape'] = function() {
   var isDrawing = false;
   var currentPath = null;
   var radiusGrowth = Util.randInt(10,20)/50.0;
-  var maxGrowth = Util.randInt(50,150);
+  var maxGrowth = Util.randInt(25,100);
   var radius;
   return {
     color: new Color(0,0,0),
